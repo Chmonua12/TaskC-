@@ -1,0 +1,41 @@
+//1. Мини-компрессор строки (RLE)
+//Реализовать сжатие строки по принципу Run-Length Encoding:
+//AAABBCCDAA → A3B2C2D1A2
+//и обратную операцию — декодирование.
+//Нельзя использовать Regex.Replace, только логика + StringBuilder.
+
+
+using System;
+using System.Text;
+
+public class RLE
+{
+    public static string Encode(string s)
+    {
+        var sb = new StringBuilder();
+        for (int i = 0, count = 1; i < s.Length; i++)
+        {
+            if (i + 1 < s.Length && s[i] == s[i + 1])
+            {
+                count++;
+            }
+            else
+            {
+                sb.Append(s[i]).Append(count);
+                count = 1;
+            }
+        }
+        return sb.ToString();
+    }
+    
+    public static string Decode(string s)
+    {
+        var sb = new StringBuilder();
+        for (int i = 0; i < s.Length; i += 2)
+            sb.Append(s[i], s[i + 1] - '0');
+        return sb.ToString();
+    }
+}
+string text = "AAABBCCDAA";
+string coded = RLE.Encode(text);  
+string decoded = RLE.Decode(coded); 
