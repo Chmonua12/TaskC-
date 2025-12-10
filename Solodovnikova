@@ -1,0 +1,71 @@
+//1. Обработка исключений в async/await
+//    Симулировать метод, который иногда выбрасывает исключение.
+//    Запустить 5 раз параллельно, корректно обработать исключения и вывести:
+//    успешные результаты, ошибки.
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+class Program
+{
+    // Асинхронный метод
+    async Task<int> AsyncYO(int id)
+    {
+        await Task.Delay(100);              
+        if (new Random().Next(0, 3) == 0) 
+            throw new InvalidOperationException($"Ошибка в задаче {id}"); 
+        return id * 10;                   
+    }
+
+    async Task Task1()
+    {
+        Console.WriteLine("Задача 1: Обработка исключений в async/await");
+        
+        var tasks = new List<Task<int>>();
+        
+        for (int i = 1; i <= 5; i++)
+        {
+            tasks.Add(AsyncYO(i));    //запускается немедленно
+        }
+
+        try
+        {
+            await Task.WhenAll(tasks); // игнор ошибок
+        }
+        catch 
+        { 
+
+        }
+
+        Console.WriteLine("\nУспешные результаты:");
+        
+        foreach (var task in tasks.Where(t => t.Status == TaskStatus.RanToCompletion))
+        {
+
+            Console.WriteLine($"  Результат: {task.Result}");
+        }
+
+        Console.WriteLine("\nОшибки:");
+        foreach (var task in tasks.Where(t => t.Status == TaskStatus.Faulted))
+        {
+            Console.WriteLine($"  Ошибка: {task.Exception.InnerException.Message}"); //Task.Exception.InnerException.Message позволяет получить сообщение об ошибке,
+                                                                                     //которое возникает внутри исключения. 
+        }
+    }
+
+    static void Main(string[] args)
+    {
+
+        Program program = new Program();
+
+        program.Task1().GetAwaiter().GetResult(); // ждет завершения 
+        
+        Console.WriteLine("\nНажмите любую клавишу для выхода");
+        Console.ReadKey();
+    }
+}
+
+
